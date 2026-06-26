@@ -70,6 +70,7 @@ type ChapterWithToken struct {
 	Notes                string       `db:"notes"`
 	LastContact          string       `db:"last_contact"`
 	LastAction           string       `db:"last_action"`
+	LastActionDate       *string      `db:"last_action_date"`
 	Organizers           Organizers   `db:"organizers"`
 	LastCheckinEmailSent sql.NullTime `db:"last_checkin_email_sent"`
 	EmailToken           string       `db:"email_token"`
@@ -150,7 +151,14 @@ func GetAllChapters(db *sqlx.DB) ([]ChapterWithToken, error) {
 		  AND fb_events.start_time < NOW()
 		), "") AS last_fb_event,
 
-		mentor, country, notes, last_contact, last_action, organizers, last_checkin_email_sent, IFNULL(email_token,"") as email_token
+		mentor, country, notes, last_contact, last_action, organizers, last_checkin_email_sent, IFNULL(email_token,"") as email_token,
+
+		(
+		  SELECT MAX(e.date)
+		  FROM events e
+		  WHERE e.chapter_id = fb_pages.chapter_id
+		  AND e.event_type = 'Action'
+		) AS last_action_date
 
 		FROM fb_pages
 		ORDER BY name`
@@ -181,7 +189,14 @@ func GetAdminChapterById(db *sqlx.DB, id int) (ChapterWithToken, error) {
 		  AND fb_events.start_time < NOW()
 		), "") AS last_fb_event,
 
-		mentor, country, notes, last_contact, last_action, organizers, last_checkin_email_sent, IFNULL(email_token,"") as email_token
+		mentor, country, notes, last_contact, last_action, organizers, last_checkin_email_sent, IFNULL(email_token,"") as email_token,
+
+		(
+		  SELECT MAX(e.date)
+		  FROM events e
+		  WHERE e.chapter_id = fb_pages.chapter_id
+		  AND e.event_type = 'Action'
+		) AS last_action_date
 
 		FROM fb_pages
 		WHERE chapter_id = ?`

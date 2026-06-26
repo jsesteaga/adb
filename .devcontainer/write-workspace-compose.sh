@@ -9,6 +9,8 @@ set -euo pipefail
 
 # The workspace path is passed in as the first argument.
 workspace_path="${1:?workspace path is required}"
+# Windows hosts pass backslash paths; normalize so git and YAML stay predictable.
+workspace_path="${workspace_path//\\//}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 output_file="${script_dir}/compose.workspace.yaml"
 

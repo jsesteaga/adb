@@ -17,7 +17,7 @@
   "shutdownAction": "stopCompose",
   "remoteUser": "vscode",
   // Generate a per-worktree Compose override for the project name and mounts.
-  "initializeCommand": "bash .devcontainer/write-workspace-compose.sh '${localWorkspaceFolder}'",
+  "initializeCommand": "powershell -NoProfile -ExecutionPolicy Bypass -File .devcontainer/initialize-host.ps1 -WorkspacePath \"${localWorkspaceFolder}\" || bash .devcontainer/write-workspace-compose.sh \"${localWorkspaceFolder}\"",
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
