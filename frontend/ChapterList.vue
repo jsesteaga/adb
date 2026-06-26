@@ -137,6 +137,10 @@
         v-if="showFacebookColumns"
       >
         <b-icon icon="circle" :type="colorFBSyncStatus(props.row.LastFBSync)"></b-icon>
+        <span class="tag ml-1" :class="colorLastActionStatus(props.row.LastActionDate)">
+          Last Action:
+          {{ props.row.LastActionDate ? props.row.LastActionDate.split('T')[0] : 'None' }}
+        </span>
       </b-table-column>
     </b-table>
 
@@ -551,6 +555,7 @@ interface Chapter {
   LastContactParsed: Date | null;
   LastAction: string;
   LastActionParsed: Date | null;
+  LastActionDate: string | null;
   Organizers: Organizer[];
 }
 
@@ -849,6 +854,22 @@ export default Vue.extend({
         c = Colors.GREEN;
       }
       return c;
+    },
+    colorLastActionStatus(dateText: string | null) {
+      if (!dateText) {
+        return Colors.GRAY;
+      }
+      const daysAgo = dayjs().diff(dayjs(dateText), 'day');
+      if (!dayjs(dateText).isValid()) {
+        return Colors.GRAY;
+      }
+      if (daysAgo <= 30) {
+        return Colors.GREEN;
+      }
+      if (daysAgo <= 90) {
+        return Colors.YELLOW;
+      }
+      return Colors.RED;
     },
     // Quadrimesters: Feb–May, Jun–Sep, Oct–Jan. Returns the first day of the
     // quadrimester containing today.

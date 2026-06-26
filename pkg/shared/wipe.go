@@ -39,6 +39,7 @@ func mustDropAllTables(db *sqlx.DB, isProd bool) {
 		DROP TABLE IF EXISTS users_roles;
 		DROP TABLE IF EXISTS adb_users;
 		DROP TABLE IF EXISTS merged_activist_attendance;
+		DROP TABLE IF EXISTS activist_working_groups;
 		DROP TABLE IF EXISTS working_groups;
 		DROP TABLE IF EXISTS working_group_members;
 		DROP TABLE IF EXISTS circles;
