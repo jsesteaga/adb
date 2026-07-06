@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dxe/adb/pkg/shared"
@@ -117,7 +118,7 @@ func SetCommandLineFlags(isProdArgument bool, logLevel int) {
 }
 
 func mustGetenv(key, fallback string, mandatory bool) string {
-	val := os.Getenv(key)
+	val := strings.TrimSpace(os.Getenv(key))
 	if val != "" {
 		return val
 	}

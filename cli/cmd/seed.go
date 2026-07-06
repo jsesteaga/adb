@@ -330,8 +330,8 @@ func seedActivistWorkingGroups(conn *sqlx.DB, activistID int64, workingGroupIDs 
 	selected := randomDistinctInts(len(workingGroupIDs), groupCount)
 	for _, idx := range selected {
 		if _, err := conn.Exec(
-			`INSERT IGNORE INTO activist_working_groups (activist_id, working_group_id) VALUES (?, ?)`,
-			activistID, workingGroupIDs[idx],
+			`INSERT IGNORE INTO working_group_members (working_group_id, activist_id, point_person, non_member_on_mailing_list) VALUES (?, ?, 0, 0)`,
+			workingGroupIDs[idx], activistID,
 		); err != nil {
 			return err
 		}

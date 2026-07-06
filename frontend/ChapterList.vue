@@ -137,10 +137,6 @@
         v-if="showFacebookColumns"
       >
         <b-icon icon="circle" :type="colorFBSyncStatus(props.row.LastFBSync)"></b-icon>
-        <span class="tag ml-1" :class="colorLastActionStatus(props.row.LastActionDate)">
-          Last Action:
-          {{ props.row.LastActionDate ? props.row.LastActionDate.split('T')[0] : 'None' }}
-        </span>
       </b-table-column>
     </b-table>
 
@@ -855,21 +851,25 @@ export default Vue.extend({
       }
       return c;
     },
-    colorLastActionStatus(dateText: string | null) {
-      if (!dateText) {
+    colorLastAction(text: string) {
+      if (!text) {
         return Colors.GRAY;
       }
-      const daysAgo = dayjs().diff(dayjs(dateText), 'day');
-      if (!dayjs(dateText).isValid()) {
-        return Colors.GRAY;
-      }
-      if (daysAgo <= 30) {
-        return Colors.GREEN;
-      }
-      if (daysAgo <= 90) {
-        return Colors.YELLOW;
-      }
-      return Colors.RED;
+      const now = dayjs();
+      const quadStart = this.currentQuadrimesterStart();
+      const prevQuadStart = quadStart.subtract(4, 'month');
+      const quadEnd = quadStart.add(4, 'month'); // first day of next quadrimester
+      const blackThreshold = quadEnd.subtract(1, 'week');
+
+      const lastAction = dayjs(text);
+
+      // Anything older than the previous quadrimester is always black
+      if (!lastAction.isValid() || lastAction.isBefore(prevQuadStart)) return Colors.BLACK;
+
+      const hasActionThisQuadrimester = !lastAction.isBefore(quadStart);
+      if (hasActionThisQuadrimester) return Colors.GREEN;
+      if (now.isBefore(blackThreshold)) return Colors.YELLOW;
+      return Colors.BLACK;
     },
     // Quadrimesters: Feb–May, Jun–Sep, Oct–Jan. Returns the first day of the
     // quadrimester containing today.
@@ -881,26 +881,6 @@ export default Vue.extend({
       if (month >= 5 && month <= 8) return dayjs(new Date(year, 5, 1));
       if (month >= 9) return dayjs(new Date(year, 9, 1));
       return dayjs(new Date(year - 1, 9, 1)); // January → previous Oct
-    },
-    colorLastAction(text: string) {
-      const now = dayjs();
-      const quadStart = this.currentQuadrimesterStart();
-      const prevQuadStart = quadStart.subtract(4, 'month');
-      const quadEnd = quadStart.add(4, 'month'); // first day of next quadrimester
-      const redThreshold = quadStart.add(1, 'month').add(2, 'week');
-      const blackThreshold = quadEnd.subtract(1, 'week');
-
-      const lastAction = dayjs(text);
-
-      // Anything older than the previous quadrimester is always black
-      if (!lastAction.isValid() || lastAction.isBefore(prevQuadStart)) return Colors.BLACK;
-
-      const hasActionThisQuadrimester = !lastAction.isBefore(quadStart);
-
-      if (hasActionThisQuadrimester) return Colors.GREEN;
-      if (now.isBefore(redThreshold)) return Colors.GREEN;
-      if (now.isBefore(blackThreshold)) return Colors.RED;
-      return Colors.BLACK;
     },
     lastActionTooltip(text: string) {
       const now = dayjs();
